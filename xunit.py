@@ -22,6 +22,7 @@ class WasRun(TestCase):
     def testMethod(self):
         self.log = self.log + "testMethod "
     def testBrokenMethod(self):
+        self.log = self.log + "testBrokenMethod "
         raise Exception
     def tearDown(self):
         self.log = self.log + "tearDown "
@@ -67,7 +68,11 @@ class TestCaseTest(TestCase):
     def testFailedResultFormatting(self):
         self.result.testStarted()
         self.result.testFailed()
-        assert("1 ru, 1 failed" == self.result.summary())
+        assert("1 run, 1 failed" == self.result.summary())
+    def testFailedButTearDownRuns(self):
+        test = WasRun("testBrokenMethod")
+        test.run(self.result)
+        assert("setUp testBrokenMethod tearDown " == test.log)
     def testSuite(self):
         suite = TestSuite()
         suite.add(WasRun("testMethod"))
@@ -81,6 +86,7 @@ suite.add(TestCaseTest("testTemplateMethod"))
 suite.add(TestCaseTest("testResult"))
 suite.add(TestCaseTest("testFailedResult"))
 suite.add(TestCaseTest("testFailedResultFormatting"))
+suite.add(TestCaseTest("testFailedButTearDownRuns"))
 suite.add(TestCaseTest("testSuite"))
 result = TestResult()
 suite.run(result)
