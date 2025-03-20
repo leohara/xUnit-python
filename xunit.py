@@ -7,8 +7,8 @@ class TestCase:
         pass
     def run(self, result):
         result.testStarted()
-        self.setUp()
         try:
+            self.setUp()
             method = getattr(self, self.name)
             method()
         except:
@@ -73,6 +73,15 @@ class TestCaseTest(TestCase):
         test = WasRun("testBrokenMethod")
         test.run(self.result)
         assert("setUp testBrokenMethod tearDown " == test.log)
+    def testSetUpError(self):
+        class TestSetUpError(TestCase):
+            def setUp(self):
+                raise Exception("setUp error")
+            def testMethod(self):
+                pass
+        test = TestSetUpError("testMethod")
+        test.run(self.result)
+        assert("1 run, 1 failed" == self.result.summary())
     def testSuite(self):
         suite = TestSuite()
         suite.add(WasRun("testMethod"))
@@ -87,6 +96,7 @@ suite.add(TestCaseTest("testResult"))
 suite.add(TestCaseTest("testFailedResult"))
 suite.add(TestCaseTest("testFailedResultFormatting"))
 suite.add(TestCaseTest("testFailedButTearDownRuns"))
+suite.add(TestCaseTest("testSetUpError"))
 suite.add(TestCaseTest("testSuite"))
 result = TestResult()
 suite.run(result)
